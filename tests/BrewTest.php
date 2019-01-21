@@ -164,6 +164,7 @@ php7');
 
     public function test_linked_php_returns_linked_php_formula_name()
     {
+
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php71/test');
@@ -234,5 +235,19 @@ php7');
         });
         swap(CommandLine::class, $cli);
         resolve(Brew::class)->installOrFail('dnsmasq');
+    }
+
+    public function test_get_prefix()
+    {
+        $cli = Mockery::mock(CommandLine::class);
+        // only once call
+        $cli->shouldReceive('runAsUser')->once()->with('brew --prefix')->andReturn('/usr/local');
+
+        swap(CommandLine::class, $cli);
+        $sut = resolve(Brew::class);
+
+        $this->assertSame('/usr/local/bin/php', $sut->getPrefix());
+        $this->assertSame('/usr/local/bin/php', $sut->getPrefix() , 'second call');
+
     }
 }

@@ -12,7 +12,8 @@ class Brew
 
     var $cli, $files;
 
-    var $prefix = '/usr/local';
+    var $prefix;
+
     /**
      * Create a new Brew instance.
      *
@@ -24,7 +25,6 @@ class Brew
     {
         $this->cli = $cli;
         $this->files = $files;
-        $this->prefix = trim($this->cli->runAsUser('brew --prefix'));
     }
 
     /**
@@ -180,11 +180,12 @@ class Brew
      */
     function linkedPhp()
     {
-        if (! $this->files->isLink($this->getPrefix().'/bin/php')) {
+
+        if (! $this->files->isLink($this->getPrefix() . '/bin/php')) {
             throw new DomainException("Unable to determine linked PHP.");
         }
 
-        $resolvedPath = $this->files->readLink($this->getPrefix().'/bin/php');
+        $resolvedPath = $this->files->readLink($this->getPrefix() . '/bin/php');
 
         return $this->supportedPhpVersions()->first(function ($version) use ($resolvedPath) {
             $resolvedPathNormalized= preg_replace('/([@|\.])/', '', $resolvedPath);
@@ -218,8 +219,13 @@ class Brew
 %admin ALL=(root) NOPASSWD: BREW'.PHP_EOL);
     }
 
-  public function getPrefix()
-  {
-    return $this->prefix;
-  }
+
+    public function getPrefix()
+    {
+
+        if (!$this->prefix) {
+            $this->prefix = trim($this->cli->runAsUser('brew --prefix'));
+        }
+        return $this->prefix;
+    }
 }
