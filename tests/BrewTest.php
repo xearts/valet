@@ -246,8 +246,8 @@ php7');
         swap(CommandLine::class, $cli);
         $sut = resolve(Brew::class);
 
-        $this->assertSame('/usr/local/bin/php', $sut->getPrefix());
-        $this->assertSame('/usr/local/bin/php', $sut->getPrefix() , 'second call');
+        $this->assertSame('/usr/local', $sut->getPrefix());
+        $this->assertSame('/usr/local', $sut->getPrefix() , 'second call');
 
     }
 }
