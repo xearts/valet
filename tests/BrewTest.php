@@ -237,7 +237,8 @@ php7');
         resolve(Brew::class)->installOrFail('dnsmasq');
     }
 
-    public function test_get_prefix()
+
+    public function test_getprefix_command_executed_once()
     {
         $cli = Mockery::mock(CommandLine::class);
         // only once call
@@ -250,4 +251,22 @@ php7');
         $this->assertSame('/usr/local', $sut->getPrefix() , 'second call');
 
     }
+
+    public function test_linked_php_links_php_with_installation_directory_prefix_value()
+    {
+
+        $files = Mockery::mock(Filesystem::class);
+        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
+        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php71/test');
+        swap(Filesystem::class, $files);
+        $brew = Mockery::mock(Brew::class.'[getPrefix]',[new CommandLine, $files]);
+
+        $brew->shouldReceive('getPrefix')->twice()->andReturn('/usr/local');
+        swap(Brew::class, $brew);
+
+        $this->assertSame('php@7.1', resolve(Brew::class)->linkedphp());
+
+    }
+
+
 }
