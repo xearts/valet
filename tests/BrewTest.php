@@ -164,7 +164,6 @@ php7');
 
     public function test_linked_php_returns_linked_php_formula_name()
     {
-
         $files = Mockery::mock(Filesystem::class);
         $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
         $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php71/test');
@@ -238,34 +237,24 @@ php7');
     }
 
 
-    public function test_getprefix_command_executed_once()
+    public function test_get_prefix_command_executed_once_when_called()
     {
         $cli = Mockery::mock(CommandLine::class);
         // only once call
         $cli->shouldReceive('runAsUser')->once()->with('brew --prefix')->andReturn('/usr/local');
-
         swap(CommandLine::class, $cli);
         $sut = resolve(Brew::class);
-
         $this->assertSame('/usr/local', $sut->getPrefix());
         $this->assertSame('/usr/local', $sut->getPrefix() , 'second call');
-
     }
 
-    public function test_linked_php_links_php_with_installation_directory_prefix_value()
+
+    public function test_linked_php_ensures_installed_path_loaded_runtime_and_returns_php_formula_name_()
     {
-
-        $files = Mockery::mock(Filesystem::class);
-        $files->shouldReceive('isLink')->once()->with('/usr/local/bin/php')->andReturn(true);
-        $files->shouldReceive('readLink')->once()->with('/usr/local/bin/php')->andReturn('/test/path/php71/test');
-        swap(Filesystem::class, $files);
-        $brew = Mockery::mock(Brew::class.'[getPrefix]',[new CommandLine, $files]);
-
+        $brew = Mockery::mock(Brew::class.'[getPrefix]',[new CommandLine,new Filesystem]);
         $brew->shouldReceive('getPrefix')->twice()->andReturn('/usr/local');
         swap(Brew::class, $brew);
-
-        $this->assertSame('php@7.1', resolve(Brew::class)->linkedphp());
-
+        $this->assertSame('php@7.2', resolve(Brew::class)->linkedphp());
     }
 
 
